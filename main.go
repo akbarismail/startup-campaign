@@ -24,6 +24,7 @@ func main() {
 	r := gin.Default()
 	api := r.Group("/api/v1")
 	api.POST("/users", userHandler.RegisterUser)
+	api.POST("/sessions", userHandler.Login)
 
 	r.Run(":8080")
 }
