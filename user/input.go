@@ -11,3 +11,7 @@ type LoginUserInput struct {
 	Email    string `binding:"required,email"`
 	Password string `binding:"required"`
 }
+
+type CheckEmailInput struct {
+	Email string `binding:"required,email"`
+}
