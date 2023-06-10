@@ -1,6 +1,9 @@
 package campaign
 
-import "time"
+import (
+	"startup-campaign/user"
+	"time"
+)
 
 type Campaign struct {
 	ID               int
@@ -8,7 +11,7 @@ type Campaign struct {
 	Name             string
 	Description      string
 	ShortDescription string
-	GoalAmout        int
+	GoalAmount       int
 	CurrentAmount    int
 	Perks            string
 	CountBacker      int
@@ -16,6 +19,7 @@ type Campaign struct {
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 	CampaignImages   []CampaignImage
+	User             user.User
 }
 
 type CampaignImage struct {
