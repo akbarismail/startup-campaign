@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"startup-campaign/auth"
 	"startup-campaign/campaign"
@@ -30,19 +29,22 @@ func main() {
 	userService := user.NewService(userRepository)
 	campaignService := campaign.NewService(campaignRepository)
 
-	campaignAll, _ := campaignService.GetCampaigns(9)
-	fmt.Println(len(campaignAll))
-
 	authService := auth.NewService()
 
 	userHandler := handler.NewUserHandler(userService, authService)
+	campaignHandler := handler.NewCampaignHandler(campaignService)
 
 	r := gin.Default()
+	r.Static("/images", "./images")
+
 	api := r.Group("/api/v1")
+
 	api.POST("/users", userHandler.RegisterUser)
 	api.POST("/sessions", userHandler.Login)
 	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
 	api.POST("/avatars", authMiddleware(authService, userService), userHandler.UploadAvatar)
+
+	api.GET("/campaigns", campaignHandler.GetCampaigns)
 
 	r.Run(":8080")
 }
