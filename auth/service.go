@@ -3,6 +3,8 @@ package auth
 import (
 	"errors"
 
+	"startup-campaign/utils"
+
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -12,8 +14,6 @@ type Service interface {
 }
 
 type jwtService struct{}
-
-var jwtSecretKey = []byte("startup_campaign_S3CR3T")
 
 func NewService() *jwtService {
 	return &jwtService{}
@@ -25,7 +25,10 @@ func (j *jwtService) GenerateToke(userId int) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	signedToken, err := token.SignedString(jwtSecretKey)
+	jwtSecretKeyString, _ := utils.EnvVariabel("JWT_SECRET_KEY")
+	jwtSecretKeyByte := []byte(jwtSecretKeyString)
+
+	signedToken, err := token.SignedString(jwtSecretKeyByte)
 	if err != nil {
 		return signedToken, err
 	}
@@ -41,7 +44,9 @@ func (j *jwtService) ValidateToken(encodeToken string) (*jwt.Token, error) {
 			return nil, errors.New("invalid token")
 		}
 
-		return []byte(jwtSecretKey), nil
+		jwtSecretKeyString, _ := utils.EnvVariabel("JWT_SECRET_KEY")
+
+		return []byte(jwtSecretKeyString), nil
 	})
 
 	if err != nil {

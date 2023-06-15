@@ -6,10 +6,13 @@ import (
 	"startup-campaign/campaign"
 	"startup-campaign/handler"
 	"startup-campaign/helper"
+	"startup-campaign/payment"
 	"startup-campaign/transaction"
 	"startup-campaign/user"
+	"startup-campaign/utils"
 	"strings"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"gorm.io/driver/postgres"
@@ -17,7 +20,7 @@ import (
 )
 
 func main() {
-	dsn := "host=localhost user=postgres password=qwerty0987654321 dbname=startup_db port=5432 sslmode=disable TimeZone=Asia/Jakarta"
+	dsn, _ := utils.EnvVariabel("DSN")
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -30,7 +33,8 @@ func main() {
 
 	userService := user.NewService(userRepository)
 	campaignService := campaign.NewService(campaignRepository)
-	transactionService := transaction.NewService(transactionRepository, campaignRepository)
+	paymentService := payment.NewService()
+	transactionService := transaction.NewService(transactionRepository, campaignRepository, paymentService)
 
 	authService := auth.NewService()
 
@@ -39,6 +43,7 @@ func main() {
 	transactionHandler := handler.NewTransactionHandler(transactionService)
 
 	r := gin.Default()
+	r.Use(cors.Default())
 	r.Static("/images", "./images")
 
 	api := r.Group("/api/v1")
@@ -47,6 +52,7 @@ func main() {
 	api.POST("/sessions", userHandler.Login)
 	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
 	api.POST("/avatars", authMiddleware(authService, userService), userHandler.UploadAvatar)
+	api.GET("/users/fetch", authMiddleware(authService, userService), userHandler.FetchUser)
 
 	api.GET("/campaigns", campaignHandler.GetCampaigns)
 	api.GET("/campaigns/:id", campaignHandler.GetCampaign)
@@ -57,6 +63,7 @@ func main() {
 	api.GET("/campaigns/:id/transactions", authMiddleware(authService, userService), transactionHandler.GetCampaignTransactions)
 	api.GET("/transactions", authMiddleware(authService, userService), transactionHandler.GetTransactionsByUser)
 	api.POST("/transactions", authMiddleware(authService, userService), transactionHandler.CreateTransaction)
+	api.POST("/transactions/notification", transactionHandler.GetNotification)
 
 	r.Run(":8080")
 }

@@ -13,6 +13,7 @@ type Transaction struct {
 	Status     string
 	Code       string
 	Amount     int
+	PaymentUrl string
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	User       user.User

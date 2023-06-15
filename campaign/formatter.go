@@ -50,6 +50,7 @@ type campaignDetailFormatter struct {
 	ShortDescription string                   `json:"short_description"`
 	ImageUrl         string                   `json:"image_url"`
 	GoalAmount       int                      `json:"goal_amount"`
+	CountBacker      int                      `json:"count_backer"`
 	CurrentAmount    int                      `json:"current_amount"`
 	Description      string                   `json:"description"`
 	Slug             string                   `json:"slug"`
@@ -86,6 +87,7 @@ func CampaignDetailFormat(campaign Campaign) campaignDetailFormatter {
 		Description:      campaign.Description,
 		Slug:             campaign.Slug,
 		Perks:            perks,
+		CountBacker:      campaign.CountBacker,
 	}
 
 	if len(campaign.CampaignImages) > 0 {
